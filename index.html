@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>آیون اپ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f4f7f6;--card:#fff;--ink:#12302e;--mute:#5d7573;--line:#d9e3e1;--brand:#0f6b63;--brand-ink:#fff;--accent:#f5b428;--err:#c0392b;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1a19;--card:#152826;--ink:#e8f3f1;--mute:#93aeab;--line:#26403d;--brand:#2fb5a8;--brand-ink:#06201d;--accent:#f5b428;--err:#ff8a7a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Vazirmatn,Tahoma,sans-serif;line-height:1.7;min-height:100vh}
+.wrap{max-width:480px;margin:0 auto;padding:16px}
+h1,h2,h3{margin:0}
+.logo{font-weight:800;font-size:24px;letter-spacing:-.5px}
+.logo i{font-style:normal;color:var(--accent);background:var(--ink);border-radius:8px;padding:0 8px;margin-inline-start:6px;color:#f5b428}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:16px}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+input{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+input:focus,button:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.btn{width:100%;font:inherit;font-weight:600;border:0;border-radius:12px;padding:13px;margin-top:16px;background:var(--brand);color:var(--brand-ink);cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--line);margin-top:8px}
+.tabs{display:flex;gap:6px;background:var(--bg);border-radius:12px;padding:4px}
+.tabs button{flex:1;font:inherit;border:0;padding:9px;border-radius:9px;background:transparent;color:var(--mute);cursor:pointer}
+.tabs button.on{background:var(--card);color:var(--ink);font-weight:600}
+.err{color:var(--err);font-size:13px;min-height:20px;margin-top:8px}
+header.top{display:flex;align-items:center;justify-content:space-between}
+.avatar{width:44px;height:44px;border-radius:50%;border:2px solid var(--accent);background:var(--card);color:var(--ink);font:inherit;font-weight:800;font-size:18px;cursor:pointer}
+.menu{position:absolute;top:70px;inset-inline-start:16px;width:min(300px,calc(100% - 32px));background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.18);z-index:5;overflow:hidden}
+.menu .who{padding:14px 16px;border-bottom:1px solid var(--line)}
+.menu .who b{display:block}.menu .who span{font-size:13px;color:var(--mute);word-break:break-all}
+.menu button{display:block;width:100%;text-align:start;font:inherit;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 16px;color:var(--ink);cursor:pointer}
+.menu button:last-child{border:0;color:var(--err)}
+.sg{position:relative}
+.sg ul{position:absolute;inset-inline:0;top:100%;z-index:4;margin:2px 0 0;padding:4px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.18);max-height:240px;overflow:auto}
+.sg li{padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+.sg li:hover{background:var(--bg)}
+.sg li.none{color:var(--mute);cursor:default}
+.map{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.map summary{font-weight:600;cursor:pointer}
+.map iframe{width:100%;height:280px;border:0;border-radius:12px;margin-top:10px;background:var(--bg)}
+.hide{display:none!important}
+.price{text-align:center;padding:14px;border-radius:12px;background:var(--bg);margin-top:14px}
+.price b{font-size:28px;display:block;color:var(--brand)}
+.price small{color:var(--mute)}
+.send{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.send button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:11px 4px;cursor:pointer;color:#fff}
+.sms{background:#4a5568}.wa{background:#1f9d55}.bale{background:#1a8fcf}
+.panel{position:fixed;inset:0;background:var(--bg);z-index:10;overflow:auto;padding:16px}
+.panel .in{max-width:480px;margin:0 auto}
+.item{padding:12px 0;border-bottom:1px solid var(--line)}
+.item small{color:var(--mute);display:block}
+a.call{color:var(--brand);font-weight:600;text-decoration:none;direction:ltr;unicode-bidi:embed}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;z-index:20}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+// کلید API نشان (اختیاری): از platform.neshan.org بگیرید و بین گیومه‌ها بگذارید تا جست‌وجو در کل ایران دقیق‌تر شود
+const NESHAN_KEY="";
+const DRIVER_PHONE="09909268097", DRIVER_INTL="989909268097";
+const SUPPORT=["09909360 97".replace(" ",""),"02144785143"];
+const PLACES={
+"میدان آزادی":[35.6997,51.3380],"میدان انقلاب":[35.7013,51.3913],"تجریش":[35.8040,51.4310],
+"میدان ونک":[35.7573,51.4097],"فرودگاه مهرآباد":[35.6892,51.3134],"فرودگاه امام خمینی":[35.4161,51.1522],
+"میدان آرژانتین":[35.7345,51.4147],"شهرک غرب":[35.7650,51.3650],"تهران‌پارس":[35.7400,51.5200],
+"ستارخان":[35.7160,51.3300],"میدان امام حسین":[35.6870,51.4400],"پونک":[35.7600,51.3350],"برج میلاد":[35.7448,51.3753],"ایران مال":[35.7450,51.1990],"پل طبیعت":[35.7507,51.4162],"کاخ گلستان":[35.6797,51.4208],"بازار بزرگ تهران":[35.6736,51.4208],"پارک لاله":[35.7058,51.3897],"پارک ملت":[35.7596,51.4081],"پارک شهر":[35.6925,51.3875],"برج آزادی":[35.6997,51.3380],"شهر ری":[35.5900,51.4350]};
+const fa=n=>Number(n).toLocaleString("fa-IR");
+const mem={};
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return k in mem?mem[k]:d}},
+set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){mem[k]=v}}};
+const $=s=>document.querySelector(s);
+const digits=s=>s.replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).trim();
+let mode="register",est=null;
+
+function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),2500)}
+
+function render(){
+  const email=store.get("ayon_session",null);
+  const u=email&&store.get("ayon_users",{})[email];
+  u?home(u):auth();
+}
+
+function auth(){
+  $("#app").innerHTML=`
+  <div style="text-align:center;margin-top:24px"><div class="logo">آیون<i>اپ</i></div><p style="color:var(--mute);margin:6px 0 0">سفر راحت، با یک درخواست</p></div>
+  <div class="card">
+    <div class="tabs"><button id="t1" class="${mode=="register"?"on":""}">ثبت‌نام</button><button id="t2" class="${mode=="login"?"on":""}">ورود</button></div>
+    <div id="f">
+      ${mode=="register"?`<label>نام و نام خانوادگی</label><input id="name" autocomplete="name">`:""}
+      <label>شماره موبایل</label><input id="phone" inputmode="tel" placeholder="09123456789" autocomplete="tel">
+      ${mode=="register"?`<label>ایمیل</label><input id="email" type="email" dir="ltr" placeholder="name@example.com">`:`<label>ایمیل</label><input id="email" type="email" dir="ltr">`}
+      <label>رمز عبور</label><input id="pass" type="password" autocomplete="${mode=="register"?"new-password":"current-password"}">
+      <div class="err" id="err"></div>
+      <button class="btn" id="go">${mode=="register"?"ثبت‌نام و ورود":"ورود به حساب"}</button>
+    </div>
+  </div>`;
+  $("#t1").onclick=()=>{mode="register";auth()};
+  $("#t2").onclick=()=>{mode="login";auth()};
+  $("#go").onclick=submitAuth;
+}
+
+function submitAuth(){
+  const v=id=>($("#"+id)?digits($("#"+id).value):"");
+  const name=$("#name")?$("#name").value.trim():"",phone=v("phone"),email=v("email").toLowerCase(),pass=$("#pass").value;
+  const err=m=>$("#err").textContent=m;
+  if(mode=="register"&&name.split(/\s+/).length<2)return err("نام و نام خانوادگی را کامل وارد کنید.");
+  if(!/^09\d{9}$/.test(phone))return err("شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.");
+  if(!/^\S+@\S+\.\S+$/.test(email))return err("ایمیل معتبر وارد کنید.");
+  if(pass.length<6)return err("رمز عبور باید حداقل ۶ کاراکتر باشد.");
+  const users=store.get("ayon_users",{});
+  if(mode=="register"){
+    if(users[email])return err("با این ایمیل قبلاً ثبت‌نام شده است. وارد شوید.");
+    users[email]={name,phone,email,pass};store.set("ayon_users",users);
+  }else{
+    const u=users[email];
+    if(!u||u.pass!==pass||u.phone!==phone)return err("اطلاعات ورود درست نیست.");
+  }
+  store.set("ayon_session",email);render();
+}
+
+function home(u){
+  $("#app").innerHTML=`
+  <header class="top">
+    <button class="avatar" id="av" aria-label="پروفایل">${u.name.trim()[0]}</button>
+    <div class="logo">آیون<i>اپ</i></div>
+  </header>
+  <div class="menu hide" id="menu">
+    <div class="who"><b>${esc(u.name)}</b><span>${esc(u.email)}</span></div>
+    <button data-p="notif">اعلان‌ها</button>
+    <button data-p="support">پیام به پشتیبانی</button>
+    <button data-p="trips">سفرهای من</button>
+    <button data-p="about">درباره آیون اپ</button>
+    <button id="out">خروج از حساب</button>
+  </div>
+  <div class="card">
+    <h2 style="font-size:19px">سفر جدید</h2>
+    <label>مبدأ</label><div class="sg"><input id="from" autocomplete="off" placeholder="هر مکانی را بنویسید، مثلاً تهران‌پارس"><ul id="from-l" class="hide"></ul></div>
+    <label>مقصد</label><div class="sg"><input id="to" autocomplete="off" placeholder="مثلاً ایران مال"><ul id="to-l" class="hide"></ul></div>
+    <div class="err" id="perr"></div>
+    <div id="res"></div>
+  </div>`;
+  $("#av").onclick=()=>$("#menu").classList.toggle("hide");
+  $("#menu").onclick=e=>{const p=e.target.dataset.p;if(p){$("#menu").classList.add("hide");panel(p,u)}};
+  $("#out").onclick=()=>{store.set("ayon_session",null);est=null;render()};
+  sel.from=sel.to=null;setupField("from");setupField("to");
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const sel={from:null,to:null},timer={};let calcId=0;
+const norm=t=>t.replace(/ي/g,"ی").replace(/ك/g,"ک");
+const flat=t=>norm(t).replace(/[\s\u200c]/g,"");
+const li=p=>`<li data-p="${esc(JSON.stringify(p))}">${esc(p.name)}</li>`;
+const localMatches=q=>Object.keys(PLACES).filter(k=>flat(k).includes(flat(q))).map(k=>({name:k,lat:PLACES[k][0],lng:PLACES[k][1]}));
+function setupField(id){
+  const inp=$("#"+id),ul=$("#"+id+"-l");
+  inp.oninput=()=>{sel[id]=null;est=null;$("#res").innerHTML="";$("#perr").textContent="";clearTimeout(timer[id]);
+    const q=norm(inp.value.trim());
+    if(q.length<2){ul.classList.add("hide");return}
+    ul.innerHTML=localMatches(q).map(li).join("");ul.classList.toggle("hide",!ul.innerHTML);
+    timer[id]=setTimeout(()=>remote(id,q),450)};
+  ul.onclick=e=>{const l=e.target.closest("li[data-p]");if(l)pick(id,JSON.parse(l.dataset.p))};
+}
+async function nom(q){
+  const r=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=ir&accept-language=fa&q="+encodeURIComponent(q));
+  return (await r.json()).map(x=>({name:x.display_name.split(/[,،]\s*/).slice(0,3).join("، "),lat:+x.lat,lng:+x.lon}));
+}
+async function pho(q){
+  const r=await fetch("https://photon.komoot.io/api/?limit=8&lat=35.7&lon=51.4&q="+encodeURIComponent(q));
+  return (await r.json()).features.filter(f=>f.properties.countrycode==="IR").map(f=>{
+    const p=f.properties;
+    return {name:[p.name,p.street,p.district||p.city].filter(Boolean).join("، "),lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0]};
+  });
+}
+async function nes(q){
+  const r=await fetch("https://api.neshan.org/v1/search?lat=35.7&lng=51.4&term="+encodeURIComponent(q),{headers:{"Api-Key":NESHAN_KEY}});
+  return (await r.json()).items.map(x=>({name:x.title+(x.region?"، "+x.region:""),lat:x.location.y,lng:x.location.x}));
+}
+async function remote(id,q){
+  const inp=$("#"+id),ul=$("#"+id+"-l"),loc=localMatches(q);
+  const qs=[q];if(/\s/.test(q))qs.push(q.replace(/\s+/g,"\u200c"));if(!q.includes("تهران"))qs.push(q+" تهران");
+  const jobs=[...(NESHAN_KEY?[nes(q)]:[]),...[...new Set([qs[0],qs[qs.length-1]])].map(nom),...qs.map(pho)];
+  const out=await Promise.allSettled(jobs);
+  if(norm(inp.value.trim())!==q||sel[id])return;
+  const failed=out.every(o=>o.status==="rejected");
+  const seen=new Set(),all=[];
+  for(const p of [...loc,...out.flatMap(o=>o.status==="fulfilled"?o.value:[])]){
+    if(!p.name)continue;
+    const k=p.name+"|"+p.lat.toFixed(3)+","+p.lng.toFixed(3);
+    if(seen.has(k))continue;seen.add(k);all.push(p);
+  }
+  ul.innerHTML=all.length?all.slice(0,10).map(li).join(""):`<li class="none">${failed?"برای جست‌وجو به اینترنت نیاز است.":"پیدا نشد. اسم را دقیق‌تر یا با نام منطقه بنویسید، مثلاً «پارک ملت ونک»."}</li>`;
+  ul.classList.remove("hide");
+}
+function pick(id,p){
+  $("#"+id).value=p.name;sel[id]=p;$("#"+id+"-l").classList.add("hide");calc();
+}
+async function calc(){
+  const a=sel.from,b=sel.to,res=$("#res"),my=++calcId;
+  est=null;res.innerHTML="";$("#perr").textContent="";
+  if(!a||!b)return;
+  if(a.lat==b.lat&&a.lng==b.lng)return $("#perr").textContent="مبدأ و مقصد نباید یکی باشد.";
+  res.innerHTML=`<div class="price"><small>در حال محاسبه مسیر…</small></div>`;
+  let km=null;
+  if(NESHAN_KEY){try{
+    const r=await fetch(`https://api.neshan.org/v4/direction?type=car&origin=${a.lat},${a.lng}&destination=${b.lat},${b.lng}`,{headers:{"Api-Key":NESHAN_KEY}});
+    km=(await r.json()).routes[0].legs[0].distance.value/1000;
+  }catch(e){}}
+  if(km===null)try{
+    const c=new AbortController();setTimeout(()=>c.abort(),7000);
+    const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=false`,{signal:c.signal});
+    km=(await r.json()).routes[0].distance/1000;
+  }catch(e){}
+  if(km===null){
+    const R=6371,r=x=>x*Math.PI/180,dl=r(b.lat-a.lat),dn=r(b.lng-a.lng);
+    const h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dn/2)**2;
+    km=2*R*Math.asin(Math.sqrt(h))*1.3;
+  }
+  if(my!==calcId)return;
+  const price=Math.max(60000,Math.round((40000+km*9000)/5000)*5000);
+  est={from:a.name,to:b.name,km:Math.round(km*10)/10,price};
+  res.innerHTML=`<div class="price"><small>هزینه تخمینی (حدود ${fa(est.km)} کیلومتر)</small><b>${fa(price)} تومان</b></div>
+  <p style="margin:14px 0 0;font-weight:600">ارسال درخواست به آیون اپ درایور از طریق:</p>
+  <div class="send"><button class="sms" data-c="sms">پیامک</button><button class="wa" data-c="wa">واتس‌اپ</button><button class="bale" data-c="bale">بله</button></div>
+  <details open class="map"><summary>مسیر در گوگل مپ</summary>
+    <iframe title="مسیر در گوگل مپ" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?saddr=${a.lat},${a.lng}&daddr=${b.lat},${b.lng}&hl=fa&output=embed"></iframe>
+    <a class="btn alt" style="display:block;text-align:center;text-decoration:none" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lng}&destination=${b.lat},${b.lng}&travelmode=driving">باز کردن در برنامه گوگل مپ</a>
+  </details>`;
+  res.querySelector(".send").onclick=e=>e.target.dataset.c&&sendReq(e.target.dataset.c);
+}
+
+function sendReq(ch){
+  const u=store.get("ayon_users",{})[store.get("ayon_session",null)];
+  const msg=`درخواست سفر آیون اپ\nمسافر: ${u.name}\nموبایل: ${u.phone}\nمبدأ: ${est.from}\nمقصد: ${est.to}\nهزینه تخمینی: ${fa(est.price)} تومان`;
+  const trips=store.get("ayon_trips",{});(trips[u.email]=trips[u.email]||[]).unshift({...est,ch,t:new Date().toLocaleString("fa-IR")});
+  store.set("ayon_trips",trips);
+  const q=encodeURIComponent(msg);
+  if(ch=="sms")location.href=`sms:${DRIVER_PHONE}?body=${q}`;
+  else if(ch=="wa")window.open(`https://wa.me/${DRIVER_INTL}?text=${q}`,"_blank");
+  else{try{navigator.clipboard.writeText(msg);toast("متن درخواست کپی شد؛ در بله پیست کنید.")}catch(e){}
+    window.open(`https://ble.ir/+${DRIVER_INTL}`,"_blank")}
+}
+
+function panel(p,u){
+  let t="",b="";
+  if(p=="notif"){t="اعلان‌ها";b=`<p style="color:var(--mute)">اعلان جدیدی ندارید.</p>`}
+  if(p=="support"){t="پیام به پشتیبانی";b=`<p>برای ارتباط با پشتیبانی تماس بگیرید یا پیام بدهید:</p>`+SUPPORT.map(n=>`<div class="item"><a class="call" href="tel:${n}">${n}</a></div>`).join("")}
+  if(p=="trips"){t="سفرهای من";const l=(store.get("ayon_trips",{})[u.email]||[]);
+    b=l.length?l.map(x=>`<div class="item"><b>${esc(x.from)} ← ${esc(x.to)}</b><small>${fa(x.price)} تومان · ${x.t}</small></div>`).join(""):`<p style="color:var(--mute)">هنوز سفری ثبت نکرده‌اید. از صفحه اصلی مسیر را انتخاب کنید.</p>`}
+  if(p=="about"){t="درباره آیون اپ";b=`<p>آیون اپ برنامه‌ای برای درخواست سفر است. مسیرتان را انتخاب می‌کنید، هزینه تخمینی را می‌بینید و درخواست را برای راننده می‌فرستید.</p><p style="color:var(--mute)">نسخه ۱٫۰</p>`}
+  const d=document.createElement("div");d.className="panel";
+  d.innerHTML=`<div class="in"><h2 style="margin:8px 0 16px">${t}</h2>${b}<button class="btn alt">بازگشت</button></div>`;
+  d.querySelector("button").onclick=()=>d.remove();document.body.append(d);
+}
+render();
+</script>
+</body>
+</html>
